@@ -1,0 +1,23 @@
+{
+  "name": "yorki",
+  "version": "1.0.0",
+  "description": "Smartless micro js framework",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "parcel ./demo/index.html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dkryaklin/yorki.git"
+  },
+  "author": "Dmitry Kryaklin",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dkryaklin/yorki/issues"
+  },
+  "homepage": "https://github.com/dkryaklin/yorki#readme",
+  "devDependencies": {
+    "parcel-bundler": "^1.12.4"
+  }
+}
