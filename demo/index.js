@@ -1,118 +1,99 @@
-import { tag, portal, state } from "../src";
-import {
-  className,
-  attribute,
-  style,
-  attached,
-  childrens
-} from "../src/bindings";
+import Yorki from '../src/yorki';
 
-const Button = counter => {
-  const tree = tag(
-    "button",
-    {
-      class: "button",
-      click() {
+const Button = (counter) => {
+  return Yorki({
+    tag: 'button',
+    className: 'button',
+    props: { counter },
+    events: {
+      click(event, tree, state, props) {
+        const { counter } = props;
         counter().set(counter().value() + 1);
-      }
+      },
     },
-    "Hello, world!"
-  );
-
-  return tree;
+    childrens() {
+      return ['Hello, world!'];
+    },
+  });
 };
 
-const ButtonWrapper = counter => {
-  counter().subscribe(counterValue => {
-    console.log("counter clicked ", counterValue);
+const ButtonWrapper = (counter) => {
+  counter().subscribe((counterValue) => {
+    console.log('counter clicked ', counterValue);
   });
 
-  const tree = tag("div", { class: "button-wrapper" }, [
-    "button wrapper",
-    tag("br"),
-    { button: Button(counter) }
-  ]);
-
-  return tree;
+  return Yorki({
+    className: 'button-wrapper',
+    childrens() {
+      return ['button wrapper', Yorki({ tag: 'br' }), { button: Button(counter) }];
+    },
+  });
 };
 
-const ListItem = item => {
-  const tree = tag(
-    "div",
-    { class: "list-item" },
-    { text: `list item ${item.val}` },
-    {
-      onUpdate: newItem => {
-        tree.text().el.nodeValue = `list item ${newItem.val}`;
-      }
-    }
-  );
-
-  return tree;
+const ListItem = (item) => {
+  return Yorki({
+    className: 'list-item',
+    props: { ...item },
+    childrens(state, props) {
+      return [{ text: `list item ${props.val}` }];
+    },
+    onUpdate(tree, state, props) {
+      tree.text().element.nodeValue = `list item ${props.val}`;
+    },
+  });
 };
 
 const MyApp = () => {
-  const myAppState = state({
-    counter: 0,
-    testChilds: [
-      { key: "1", val: 1 },
-      { key: "2", val: 2 },
-      { key: "3", val: 3 }
-    ]
+  return Yorki({
+    className: 'my-app',
+    state: {
+      counter: 0,
+      testChilds: [
+        { key: '1', val: 1 },
+        { key: '2', val: 2 },
+        { key: '3', val: 3 },
+      ],
+    },
+    childrens(state) {
+      return [
+        { button: ButtonWrapper(state.counter) },
+        { button2: ButtonWrapper(state.counter) },
+        { list: Yorki({ className: 'list-test' }) },
+      ];
+    },
+    onMount(tree, state) {
+      setTimeout(() => {
+        state().set({
+          testChilds: [
+            { key: '1', val: 2 },
+            { key: '3', val: 4 },
+            { key: '4', val: 5 },
+          ],
+        });
+      }, 2000);
+      setTimeout(() => {
+        state().set({
+          testChilds: [
+            { key: '1', val: 2 },
+            { key: '3', val: 4 },
+            { key: '4', val: 5 },
+            { key: '2', val: 2 },
+          ],
+        });
+      }, 4000);
+    },
+    bindings(tree, state, bindings) {
+      return [
+        bindings.bindClassName(tree, 'test', state.counter),
+        bindings.bindAttribute(tree.button, 'data-test', state.counter),
+        bindings.bindStyle(tree.button.button, 'order', state.counter),
+        bindings.bindAttached(tree.button2, state.counter, (value) => {
+          return value % 2;
+        }),
+        bindings.bindChildrens(tree.list, ListItem, state.testChilds, 'key'),
+      ];
+    },
   });
-
-  setTimeout(() => {
-    myAppState().set({
-      testChilds: [
-        { key: "1", val: 2 },
-        { key: "3", val: 4 },
-        { key: "4", val: 5 }
-      ]
-    });
-  }, 2000);
-
-  setTimeout(() => {
-    myAppState().set({
-      testChilds: [
-        { key: "1", val: 2 },
-        { key: "3", val: 4 },
-        { key: "4", val: 5 },
-        { key: "2", val: 2 }
-      ]
-    });
-  }, 4000);
-
-  const tree = tag(
-    // tag name
-    "div",
-    // default attributes
-    { class: "my-app" },
-    // children or array of childrens
-    [
-      { button: ButtonWrapper(myAppState.counter) },
-      { button2: ButtonWrapper(myAppState.counter) },
-      { list: tag("div", { class: "list-test" }) }
-    ],
-    // hooks
-    {
-      onDestroy() {
-        myAppState.destroy();
-      }
-    }
-  );
-
-  // set bindings
-  tree().bind([
-    className(tree, "test", myAppState.counter),
-    attribute(tree.button, "data-test", myAppState.counter),
-    style(tree.button.button, "order", myAppState.counter),
-    attached(tree.button2, myAppState.counter, value => {
-      return value % 2;
-    }),
-    childrens(tree.list, ListItem, myAppState.testChilds, "key")
-  ]);
-
-  return tree;
 };
 
-portal(document.querySelector("#app"), MyApp());
+Yorki.portal(document.querySelector('#app'), MyApp());

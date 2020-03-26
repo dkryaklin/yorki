@@ -1,7 +1,7 @@
-import common from "./common";
+import common from './common';
 
-export const attribute = (component, attribute, field, fn) => {
-  return common(field, value => {
+export const bindAttribute = (component, attribute, field, fn) => {
+  return common(field, (value) => {
     let attributeValue;
     if (fn) {
       attributeValue = fn(value);
@@ -10,9 +10,9 @@ export const attribute = (component, attribute, field, fn) => {
     }
 
     if (attributeValue) {
-      component().el.setAttribute(attribute, attributeValue);
+      component().element.setAttribute(attribute, attributeValue);
     } else {
-      component().el.removeAttribute(attribute);
+      component().element.removeAttribute(attribute);
     }
   });
 };

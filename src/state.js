@@ -1,9 +1,9 @@
-export const state = (defaultState = {}) => {
-  const innerState = {};
-  const callbacks = {};
-  const callbacksAsync = new Map();
+const YorkiState = (defaultState = {}) => {
+  let innerState = {};
+  let callbacks = {};
+  let callbacksAsync = new Map();
 
-  Object.keys(defaultState).forEach(field => {
+  Object.keys(defaultState).forEach((field) => {
     innerState[field] = defaultState[field];
     callbacks[field] = [];
   });
@@ -11,9 +11,9 @@ export const state = (defaultState = {}) => {
   const result = () => {
     return {
       set(newState) {
-        Object.keys(newState).forEach(field => {
+        Object.keys(newState).forEach((field) => {
           if (!callbacks[field]) {
-            console.warn("you are trying to set not inited field");
+            console.warn('you are trying to set not inited field');
             return;
           }
 
@@ -23,7 +23,7 @@ export const state = (defaultState = {}) => {
 
           innerState[field] = newState[field];
 
-          callbacks[field].forEach(callback => {
+          callbacks[field].forEach((callback) => {
             if (callbacksAsync.has(callback)) {
               const af = callbacksAsync.get(callback);
               cancelAnimationFrame(af);
@@ -35,7 +35,7 @@ export const state = (defaultState = {}) => {
                 if (callbacks[field].includes(callback)) {
                   callback(innerState);
                 }
-              })
+              }),
             );
           });
         });
@@ -48,9 +48,9 @@ export const state = (defaultState = {}) => {
           fields = [fields];
         }
 
-        fields.forEach(field => {
+        fields.forEach((field) => {
           if (!callbacks[field]) {
-            console.warn("you are trying to subscribe to not inited field");
+            console.warn('you are trying to subscribe to not inited field');
             return;
           }
 
@@ -61,44 +61,41 @@ export const state = (defaultState = {}) => {
         innerState = null;
         callbacks = null;
 
-        callbacksAsync.forEach(af => {
+        callbacksAsync.forEach((af) => {
           cancelAnimationFrame(af);
         });
 
         callbacksAsync = null;
-      }
+      },
     };
   };
 
-  Object.keys(defaultState).forEach(field => {
+  Object.keys(defaultState).forEach((field) => {
     result[field] = () => {
       return {
         value() {
-          if (!callbacks[field]) {
-            console.warn("you are trying to get value for not inited field");
-            return;
-          }
-
           return innerState[field];
         },
-        subscribe: callback => {
+        subscribe: (callback) => {
           const callbackWrapper = () => callback(innerState[field]);
           result().subscribe(field, callbackWrapper);
 
           return callbackWrapper;
         },
-        unsubscribe: callbackWrapper => {
+        unsubscribe: (callbackWrapper) => {
           const index = callbacks[field].indexOf(callbackWrapper);
           if (index !== -1) {
             callbacks[field][index] = null;
           }
         },
-        set: newValue => {
+        set: (newValue) => {
           result().set({ [field]: newValue });
-        }
+        },
       };
     };
   });
 
   return result;
 };
+
+export default YorkiState;

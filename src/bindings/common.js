@@ -4,7 +4,11 @@ const common = (field, callback) => {
   const callbackWrapper = field().subscribe(callback);
 
   return () => {
-    field().unsubscribe(callbackWrapper);
+    return {
+      destroy() {
+        field().unsubscribe(callbackWrapper);
+      },
+    };
   };
 };
 

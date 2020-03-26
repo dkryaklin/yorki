@@ -1,14 +1,10 @@
-import common from "./common";
+import common from './common';
 
-export const attached = (element, field, fn) => {
-  const emptyNode = document.createElement("div");
+export const bindAttached = (component, field, fn) => {
+  const emptyNode = document.createElement('div');
+  const parentNode = component().target().element;
 
-  let parentNode = element().el.parentNode;
-  if (element().parent && element().parent().el) {
-    parentNode = element().parent().el;
-  }
-
-  return common(field, value => {
+  return common(field, (value) => {
     let isAttach;
     if (fn) {
       isAttach = fn(value);
@@ -16,10 +12,10 @@ export const attached = (element, field, fn) => {
       isAttach = value;
     }
 
-    if (isAttach && !element().el.parentNode) {
-      parentNode.replaceChild(element().el, emptyNode);
-    } else if (!isAttach && element().el.parentNode) {
-      parentNode.replaceChild(emptyNode, element().el);
+    if (isAttach && !component().element.parentNode) {
+      parentNode.replaceChild(component().element, emptyNode);
+    } else if (!isAttach && component().element.parentNode) {
+      parentNode.replaceChild(emptyNode, component().element);
     }
   });
 };

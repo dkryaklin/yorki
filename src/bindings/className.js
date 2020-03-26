@@ -1,7 +1,7 @@
-import common from "./common";
+import common from './common';
 
-export const className = (component, className, field, fn) => {
-  return common(field, value => {
+export const bindClassName = (component, className, field, fn) => {
+  return common(field, (value) => {
     let isAddClass;
     if (fn) {
       isAddClass = fn(value);
@@ -10,9 +10,9 @@ export const className = (component, className, field, fn) => {
     }
 
     if (isAddClass) {
-      component().el.classList.add(className);
+      component().element.classList.add(className);
     } else {
-      component().el.classList.remove(className);
+      component().element.classList.remove(className);
     }
   });
 };
